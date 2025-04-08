@@ -8,9 +8,8 @@ import matplotlib.dates as mdates
 
 def generate_chart(symbol: str, start_date: str, end_date: str) -> str:
     try:
-        # ==========================
-        # 데이터 다운로드 및 지표 계산
-        # ==========================
+        print(f"[generate_chart] 시작: {symbol}, {start_date} ~ {end_date}")
+
         data = yf.download(symbol, start=start_date, end=end_date)
         if data.empty:
             raise ValueError("No data downloaded. Check the symbol or date range.")
@@ -22,9 +21,6 @@ def generate_chart(symbol: str, start_date: str, end_date: str) -> str:
         data['SMA_60'] = close.rolling(window=60).mean()
         data.dropna(inplace=True)
 
-        # ==========================
-        # RSI 다이버전스 포착
-        # ==========================
         def find_bullish_divergence(df):
             divergences = []
             for i in range(30, len(df)):
@@ -50,9 +46,6 @@ def generate_chart(symbol: str, start_date: str, end_date: str) -> str:
         bullish_points = find_bullish_divergence(data)
         bearish_points = find_bearish_divergence(data)
 
-        # ==========================
-        # 시각화: 가격 + 거래량 + RSI
-        # ==========================
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(14, 10), sharex=True,
                                            gridspec_kw={'height_ratios': [3, 1, 1]})
 
@@ -85,17 +78,21 @@ def generate_chart(symbol: str, start_date: str, end_date: str) -> str:
         plt.close()
 
         if os.path.exists(output_path):
+            print(f"[성공] 차트 저장 완료: {output_path}")
             return output_path
         else:
             raise FileNotFoundError("Image save failed.")
 
     except Exception as e:
-        print("[Error]", e)
+        print("[Error in generate_chart]:", e)
         raise
 
 
 if __name__ == "__main__":
-    path = generate_chart("AAPL", "2024-04-01", "2024-04-07")
-    print("저장된 경로:", path)
+    try:
+        path = generate_chart("AAPL", "2024-04-01", "2024-04-07")
+        print("저장된 경로:", path)
+    except Exception as e:
+        print("실행 오류:", e)
 
 

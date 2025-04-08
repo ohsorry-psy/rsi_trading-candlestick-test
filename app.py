@@ -22,21 +22,23 @@ def generate():
         chart_path = generate_chart(symbol, start, end)
 
         if os.path.exists(chart_path):
+            print("[성공] 차트 경로:", chart_path)
             return jsonify({
                 'status': 'ok',
                 'image_url': f'/static/charts/{symbol}.png'
             })
         else:
+            print("[실패] 이미지 경로 없음")
             return jsonify({
                 'status': 'error',
-                'message': '이미지 생성 실패'
+                'message': '이미지 생성 실패: 저장 실패'
             }), 500
 
     except Exception as e:
         print("[Server Error]", e)
         return jsonify({
             'status': 'error',
-            'message': '이미지 생성 실패'
+            'message': f'이미지 생성 실패: {str(e)}'
         }), 500
 
 @app.route('/static/charts/<path:filename>')
