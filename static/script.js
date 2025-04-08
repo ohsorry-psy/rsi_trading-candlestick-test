@@ -14,6 +14,7 @@ function generateChart() {
   })
   .then(response => response.json())
   .then(data => {
+    console.log(data);
     if (data.status === 'ok') {
       document.getElementById('chart').src = data.image_url + '?t=' + new Date().getTime();
     } else {
