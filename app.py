@@ -16,6 +16,8 @@ def generate():
     start = request.form['start']
     end = request.form['end']
 
+    print(f"[요청] symbol={symbol}, start={start}, end={end}")
+
     try:
         chart_path = generate_chart(symbol, start, end)
 
