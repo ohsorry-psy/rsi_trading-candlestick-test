@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>RSI Divergence Chart Viewer</title>
+</head>
+<body>
+  <h1>RSI 차트 생성기</h1>
+
+  <label for="ticker">종목 코드:</label>
+  <input id="ticker" value="AAPL" placeholder="예: AAPL, TSLA, 005930.KS">
+
+  <br><br>
+  <label for="start">시작일:</label>
+  <input type="date" id="start" value="2024-04-01">
+
+  <label for="end">종료일:</label>
+  <input type="date" id="end" value="2025-04-07">
+
+  <br><br>
+  <button onclick="generateChart()">Generate Chart</button>
+
+  <div style="margin-top: 20px;">
+    <img id="chart" src="" width="100%" alt="차트가 여기에 표시됩니다.">
+  </div>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>
