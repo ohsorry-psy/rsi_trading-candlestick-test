@@ -12,30 +12,30 @@ def index():
 
 @app.route('/generate', methods=['POST'])
 def generate():
-    symbol = request.form['symbol']
+    symbol = request.form['symbol'].strip().upper()
     start = request.form['start']
     end = request.form['end']
 
-    print(f"[요청] symbol={symbol}, start={start}, end={end}")
+    print(f"[요청 수신] symbol={symbol}, start={start}, end={end}")
 
     try:
         chart_path = generate_chart(symbol, start, end)
 
         if os.path.exists(chart_path):
-            print("[성공] 차트 경로:", chart_path)
+            print(f"[성공] 차트 생성 완료 → {chart_path}")
             return jsonify({
                 'status': 'ok',
                 'image_url': f'/static/charts/{symbol}.png'
             })
         else:
-            print("[실패] 이미지 경로 없음")
+            print("[오류] 이미지 파일이 존재하지 않음")
             return jsonify({
                 'status': 'error',
-                'message': '이미지 생성 실패: 저장 실패'
+                'message': '이미지 생성 실패: 저장되지 않음'
             }), 500
 
     except Exception as e:
-        print("[Server Error]", e)
+        print("[서버 오류]", e)
         return jsonify({
             'status': 'error',
             'message': f'이미지 생성 실패: {str(e)}'
