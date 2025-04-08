@@ -1,10 +1,10 @@
 from flask import Flask, render_template, request, send_from_directory, jsonify
 from flask_cors import CORS
-import subprocess
 import os
+from generate_chart import generate_chart
 
 app = Flask(__name__)
-CORS(app)  # CORS 활성화
+CORS(app)  # 외부 도메인에서도 접근 가능하도록 허용
 
 @app.route('/')
 def index():
@@ -16,28 +16,22 @@ def generate():
     start = request.form['start']
     end = request.form['end']
 
-    # generate_chart.py 실행
-    result = subprocess.run(
-        ['python', 'generate_chart.py', symbol, start, end],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-        encoding='utf-8'
-    )
+    try:
+        chart_path = generate_chart(symbol, start, end)
 
-    print("stdout:", result.stdout)
-    print("stderr:", result.stderr)
+        if os.path.exists(chart_path):
+            return jsonify({
+                'status': 'ok',
+                'image_url': f'/static/charts/{symbol}.png'
+            })
+        else:
+            return jsonify({
+                'status': 'error',
+                'message': '이미지 생성 실패'
+            }), 500
 
-    # 저장된 이미지 경로
-    chart_filename = f"{symbol}.png"
-    chart_path = os.path.join(app.root_path, 'static', 'charts', chart_filename)
-
-    if os.path.exists(chart_path):
-        return jsonify({
-            'status': 'ok',
-            'image_url': f'/static/charts/{chart_filename}'
-        })
-    else:
+    except Exception as e:
+        print("[Server Error]", e)
         return jsonify({
             'status': 'error',
             'message': '이미지 생성 실패'
