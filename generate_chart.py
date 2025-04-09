@@ -9,22 +9,22 @@ import matplotlib.dates as mdates
 def find_bullish_divergence(df):
     divergences = []
     for i in range(30, len(df)):
-        price_now = float(df['Close'].iloc[i])
-        price_prev = float(df['Close'].iloc[i - 5:i].min())
-        rsi_now = float(df['RSI'].iloc[i])
-        rsi_prev = float(df['RSI'].iloc[i - 5:i].min())
+        price_now = df['Close'].iloc[i].item()          
+        price_prev = df['Close'].iloc[i - 5:i].min().item()  
+        rsi_now = df['RSI'].iloc[i].item()               
+        rsi_prev = df['RSI'].iloc[i - 5:i].min().item()  
         if price_now < price_prev and rsi_now > rsi_prev:
-            divergences.append(i)
+            divergences.append(i) 
     return divergences
 
 
 def find_bearish_divergence(df):
     divergences = []
     for i in range(30, len(df)):
-        price_now = float(df['Close'].iloc[i])
-        price_prev = float(df['Close'].iloc[i - 5:i].max())
-        rsi_now = float(df['RSI'].iloc[i])
-        rsi_prev = float(df['RSI'].iloc[i - 5:i].max())
+        price_now = df['Close'].iloc[i].item()            
+        price_prev = df['Close'].iloc[i - 5:i].max().item()  
+        rsi_now = df['RSI'].iloc[i].item()                
+        rsi_prev = df['RSI'].iloc[i - 5:i].max().item()   
         if price_now > price_prev and rsi_now < rsi_prev:
             divergences.append(i)
     return divergences
