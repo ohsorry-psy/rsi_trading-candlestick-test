@@ -48,11 +48,14 @@ def generate_chart(symbol: str, start_date: str, end_date: str) -> str:
         bullish_points = find_bullish_divergence(data)
         bearish_points = find_bearish_divergence(data)
 
-        # ⭐ 에러 해결 핵심: 리스트로 변환
-        bullish_x = data.iloc[bullish_points].index.tolist()
-        bullish_y = data['Close'].iloc[bullish_points].values.tolist()
-        bearish_x = data.iloc[bearish_points].index.tolist()
-        bearish_y = data['Close'].iloc[bearish_points].values.tolist()
+        # 에러 해결 핵심: 리스트로 변환
+        bullish_x = data.iloc[bullish_points].index.to_list()
+        bullish_y = data['Close'].iloc[bullish_points].to_numpy().flatten().tolist()
+
+        bearish_x = data.iloc[bearish_points].index.to_list()
+        bearish_y = data['Close'].iloc[bearish_points].to_numpy().flatten().tolist()
+
+  
 
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(14, 10), sharex=True,
                                             gridspec_kw={'height_ratios': [3, 1, 1]})
