@@ -25,9 +25,9 @@ def generate_chart(symbol: str, start_date: str, end_date: str) -> str:
             divergences = []
             for i in range(30, len(df)):
                 price_now = df['Close'].iloc[i]
-                price_prev = df['Close'].iloc[i-5:i].min()
-                rsi_now = df['RSI'].iloc[i].
-                rsi_prev = df['RSI'].iloc[i-5:i].min()
+                price_prev = df['Close'].iloc[i - 5:i].min()
+                rsi_now = df['RSI'].iloc[i]
+                rsi_prev = df['RSI'].iloc[i - 5:i].min()
                 if price_now < price_prev and rsi_now > rsi_prev:
                     divergences.append(i)
             return divergences
@@ -36,9 +36,9 @@ def generate_chart(symbol: str, start_date: str, end_date: str) -> str:
             divergences = []
             for i in range(30, len(df)):
                 price_now = df['Close'].iloc[i]
-                price_prev = df['Close'].iloc[i-5:i].max()
+                price_prev = df['Close'].iloc[i - 5:i].max()
                 rsi_now = df['RSI'].iloc[i]
-                rsi_prev = df['RSI'].iloc[i-5:i].max()
+                rsi_prev = df['RSI'].iloc[i - 5:i].max()
                 if price_now > price_prev and rsi_now < rsi_prev:
                     divergences.append(i)
             return divergences
@@ -53,8 +53,10 @@ def generate_chart(symbol: str, start_date: str, end_date: str) -> str:
         ax1.plot(data.index, data['SMA_5'], label='SMA 5', linestyle='--')
         ax1.plot(data.index, data['SMA_20'], label='SMA 20', linestyle='--')
         ax1.plot(data.index, data['SMA_60'], label='SMA 60', linestyle='--')
-        ax1.scatter(data.iloc[bullish_points].index, data['Close'].iloc[bullish_points], color='green', label='Bullish Divergence')
-        ax1.scatter(data.iloc[bearish_points].index, data['Close'].iloc[bearish_points], color='red', label='Bearish Divergence')
+        ax1.scatter(data.iloc[bullish_points].index, data['Close'].iloc[bullish_points],
+                    color='green', label='Bullish Divergence')
+        ax1.scatter(data.iloc[bearish_points].index, data['Close'].iloc[bearish_points],
+                    color='red', label='Bearish Divergence')
         ax1.legend()
         ax1.set_ylabel('Price')
         ax1.set_title(f"{symbol} Price, RSI Divergence, Volume")
@@ -94,4 +96,3 @@ if __name__ == "__main__":
         print("저장된 경로:", path)
     except Exception as e:
         print("실행 오류:", e)
-
