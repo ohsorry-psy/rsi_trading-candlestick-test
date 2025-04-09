@@ -6,23 +6,8 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
 
-def generate_chart(symbol: str, start_date: str, end_date: str) -> str:
-    try:
-        print(f"[generate_chart] 시작: {symbol}, {start_date} ~ {end_date}")
-
-        data = yf.download(symbol, start=start_date, end=end_date)
-        if data.empty:
-            raise ValueError("No data downloaded. Check the symbol or date range.")
-
-        close = data['Close'].squeeze()
-        data['RSI'] = ta.momentum.RSIIndicator(close=close, window=14).rsi().squeeze()
-        data['SMA_5'] = close.rolling(window=5).mean()
-        data['SMA_20'] = close.rolling(window=20).mean()
-        data['SMA_60'] = close.rolling(window=60).mean()
-        data.dropna(inplace=True)
-
 def find_bullish_divergence(df):
-     divergences = []
+    divergences = []
     for i in range(30, len(df)):
         price_now = float(df['Close'].iloc[i])
         price_prev = float(df['Close'].iloc[i - 5:i].min())
@@ -44,6 +29,21 @@ def find_bearish_divergence(df):
             divergences.append(i)
     return divergences
 
+
+def generate_chart(symbol: str, start_date: str, end_date: str) -> str:
+    try:
+        print(f"[generate_chart] 시작: {symbol}, {start_date} ~ {end_date}")
+
+        data = yf.download(symbol, start=start_date, end=end_date)
+        if data.empty:
+            raise ValueError("No data downloaded. Check the symbol or date range.")
+
+        close = data['Close'].squeeze()
+        data['RSI'] = ta.momentum.RSIIndicator(close=close, window=14).rsi().squeeze()
+        data['SMA_5'] = close.rolling(window=5).mean()
+        data['SMA_20'] = close.rolling(window=20).mean()
+        data['SMA_60'] = close.rolling(window=60).mean()
+        data.dropna(inplace=True)
 
         bullish_points = find_bullish_divergence(data)
         bearish_points = find_bearish_divergence(data)
