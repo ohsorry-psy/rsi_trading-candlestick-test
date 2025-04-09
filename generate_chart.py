@@ -99,7 +99,9 @@ def generate_chart(symbol: str, start_date: str, end_date: str) -> str:
         ax1.set_ylabel('Price')
         ax1.set_title(f"{symbol} Price, RSI Divergence, Volume, Candlestick Patterns")
 
-        ax2.bar(data.index, data['Volume'].astype(float).fillna(0), color='gray')
+        volume = data['Volume'].squeeze()  # <- 시리즈로 변환
+        volume_clean = pd.to_numeric(volume, errors='coerce').fillna(0)  # <- NaN 제거 및 float 변환
+        ax2.bar(data.index, volume_clean, color='gray')  # <- 안정적인 bar 시각화
         ax2.set_ylabel('Volume')
 
         ax3.plot(data.index, data['RSI'], label='RSI', color='purple')
