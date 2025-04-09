@@ -74,7 +74,7 @@ def generate_chart(symbol: str, start_date: str, end_date: str) -> str:
         ax1.set_ylabel('Price')
         ax1.set_title(f"{symbol} Price, RSI Divergence, Volume")
 
-        ax2.bar(data.index, data['Volume'], color='gray')
+        ax2.bar(data.index, data['Volume'].astype(float).fillna(0), color='gray')
         ax2.set_ylabel('Volume')
 
         ax3.plot(data.index, data['RSI'], label='RSI', color='purple')
