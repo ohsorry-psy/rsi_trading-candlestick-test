@@ -31,11 +31,32 @@ def find_bearish_divergence(df):
     return divergences
 
 
+def find_hammer_and_inverted(df):
+    hammer = []
+    inverted = []
+    for i in range(1, len(df)):
+        o = df['Open'].iloc[i]
+        h = df['High'].iloc[i]
+        l = df['Low'].iloc[i]
+        c = df['Close'].iloc[i]
+        body = abs(c - o)
+        upper_shadow = h - max(c, o)
+        lower_shadow = min(c, o) - l
+
+        # 망치형 (Hammer): 아래 꼬리가 길고 양봉 또는 음봉
+        if lower_shadow > 2 * body and upper_shadow < body:
+            hammer.append(i)
+        # 역망치형 (Inverted Hammer): 위 꼬리가 길고 음봉
+        elif upper_shadow > 2 * body and lower_shadow < body and c < o:
+            inverted.append(i)
+    return hammer, inverted
+
+
 def generate_chart(symbol: str, start_date: str, end_date: str) -> str:
     try:
         print(f"[generate_chart] 시작: {symbol}, {start_date} ~ {end_date}")
 
-        data = yf.download(symbol, start=start_date, end=end_date)
+        data = yf.download(symbol, start=start_date, end=end_date, interval="1d")
         if data.empty:
             raise ValueError("No data downloaded. Check the symbol or date range.")
 
@@ -48,18 +69,16 @@ def generate_chart(symbol: str, start_date: str, end_date: str) -> str:
 
         bullish_points = find_bullish_divergence(data)
         bearish_points = find_bearish_divergence(data)
+        hammer_idx, inverted_idx = find_hammer_and_inverted(data)
 
-        # 🔧 리스트 변환: np.array + flatten
         bullish_x = data.index[bullish_points].to_list()
         bullish_y = np.array(data['Close'].iloc[bullish_points]).flatten().tolist()
         bearish_x = data.index[bearish_points].to_list()
         bearish_y = np.array(data['Close'].iloc[bearish_points]).flatten().tolist()
-
-        # 디버깅 로그 (선택)
-        print("🐍 bullish_x:", bullish_x[:3])
-        print("🐍 bullish_y:", bullish_y[:3])
-        print("🐍 bearish_x:", bearish_x[:3])
-        print("🐍 bearish_y:", bearish_y[:3])
+        hammer_x = data.index[hammer_idx].to_list()
+        hammer_y = np.array(data['Low'].iloc[hammer_idx] * 0.98).flatten().tolist()
+        inverted_x = data.index[inverted_idx].to_list()
+        inverted_y = np.array(data['High'].iloc[inverted_idx] * 1.02).flatten().tolist()
 
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(14, 10), sharex=True,
                                             gridspec_kw={'height_ratios': [3, 1, 1]})
@@ -70,12 +89,13 @@ def generate_chart(symbol: str, start_date: str, end_date: str) -> str:
         ax1.plot(data.index, data['SMA_60'], label='SMA 60', linestyle='--')
         ax1.scatter(bullish_x, bullish_y, color='green', label='Bullish Divergence')
         ax1.scatter(bearish_x, bearish_y, color='red', label='Bearish Divergence')
+        ax1.scatter(hammer_x, hammer_y, marker='^', color='lime', label='Hammer Pattern')
+        ax1.scatter(inverted_x, inverted_y, marker='v', color='darkred', label='Inverted Hammer')
         ax1.legend()
         ax1.set_ylabel('Price')
-        ax1.set_title(f"{symbol} Price, RSI Divergence, Volume")
+        ax1.set_title(f"{symbol} Price, RSI Divergence, Volume, Candlestick Patterns")
 
-        volume = data['Volume'].squeeze()  # <- 여기서 1D Series로 확정시킴
-        ax2.bar(data.index, volume.astype(float).fillna(0), color='gray')
+        ax2.bar(data.index, data['Volume'].astype(float).fillna(0), color='gray')
         ax2.set_ylabel('Volume')
 
         ax3.plot(data.index, data['RSI'], label='RSI', color='purple')
