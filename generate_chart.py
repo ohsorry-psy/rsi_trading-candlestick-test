@@ -90,7 +90,7 @@ def generate_chart(symbol: str, start_date: str, end_date: str) -> str:
 
 if __name__ == "__main__":
     try:
-        path = generate_chart("AAPL", "2024-04-01", "2024-04-07")
+        path = generate_chart("AAPL", "2024-04-01", "2025-04-07")
         print("저장된 경로:", path)
     except Exception as e:
         print("실행 오류:", e)
