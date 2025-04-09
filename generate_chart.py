@@ -1,6 +1,7 @@
 import os
 import yfinance as yf
 import pandas as pd
+import numpy as np
 import ta
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -9,22 +10,22 @@ import matplotlib.dates as mdates
 def find_bullish_divergence(df):
     divergences = []
     for i in range(30, len(df)):
-        price_now = df['Close'].iloc[i].item()          
-        price_prev = df['Close'].iloc[i - 5:i].min().item()  
-        rsi_now = df['RSI'].iloc[i].item()               
-        rsi_prev = df['RSI'].iloc[i - 5:i].min().item()  
+        price_now = df['Close'].iloc[i].item()
+        price_prev = df['Close'].iloc[i - 5:i].min().item()
+        rsi_now = df['RSI'].iloc[i].item()
+        rsi_prev = df['RSI'].iloc[i - 5:i].min().item()
         if price_now < price_prev and rsi_now > rsi_prev:
-            divergences.append(i) 
+            divergences.append(i)
     return divergences
 
 
 def find_bearish_divergence(df):
     divergences = []
     for i in range(30, len(df)):
-        price_now = df['Close'].iloc[i].item()            
-        price_prev = df['Close'].iloc[i - 5:i].max().item()  
-        rsi_now = df['RSI'].iloc[i].item()                
-        rsi_prev = df['RSI'].iloc[i - 5:i].max().item()   
+        price_now = df['Close'].iloc[i].item()
+        price_prev = df['Close'].iloc[i - 5:i].max().item()
+        rsi_now = df['RSI'].iloc[i].item()
+        rsi_prev = df['RSI'].iloc[i - 5:i].max().item()
         if price_now > price_prev and rsi_now < rsi_prev:
             divergences.append(i)
     return divergences
@@ -48,14 +49,17 @@ def generate_chart(symbol: str, start_date: str, end_date: str) -> str:
         bullish_points = find_bullish_divergence(data)
         bearish_points = find_bearish_divergence(data)
 
-        # 에러 해결 핵심: 리스트로 변환
-        bullish_x = data.iloc[bullish_points].index.to_list()
-        bullish_y = data['Close'].iloc[bullish_points].to_numpy().flatten().tolist()
+        # 🔧 리스트 변환: np.array + flatten
+        bullish_x = data.index[bullish_points].to_list()
+        bullish_y = np.array(data['Close'].iloc[bullish_points]).flatten().tolist()
+        bearish_x = data.index[bearish_points].to_list()
+        bearish_y = np.array(data['Close'].iloc[bearish_points]).flatten().tolist()
 
-        bearish_x = data.iloc[bearish_points].index.to_list()
-        bearish_y = data['Close'].iloc[bearish_points].to_numpy().flatten().tolist()
-
-  
+        # 디버깅 로그 (선택)
+        print("🐍 bullish_x:", bullish_x[:3])
+        print("🐍 bullish_y:", bullish_y[:3])
+        print("🐍 bearish_x:", bearish_x[:3])
+        print("🐍 bearish_y:", bearish_y[:3])
 
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(14, 10), sharex=True,
                                             gridspec_kw={'height_ratios': [3, 1, 1]})
@@ -95,7 +99,9 @@ def generate_chart(symbol: str, start_date: str, end_date: str) -> str:
             raise FileNotFoundError("Image save failed.")
 
     except Exception as e:
+        import traceback
         print("[Error in generate_chart]:", e)
+        traceback.print_exc()
         raise
 
 
