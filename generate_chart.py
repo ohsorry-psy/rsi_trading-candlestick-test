@@ -21,27 +21,29 @@ def generate_chart(symbol: str, start_date: str, end_date: str) -> str:
         data['SMA_60'] = close.rolling(window=60).mean()
         data.dropna(inplace=True)
 
-        def find_bullish_divergence(df):
-            divergences = []
-            for i in range(30, len(df)):
-                price_now = df['Close'].iloc[i]
-                price_prev = df['Close'].iloc[i - 5:i].min()
-                rsi_now = df['RSI'].iloc[i]
-                rsi_prev = df['RSI'].iloc[i - 5:i].min()
-                if price_now < price_prev and rsi_now > rsi_prev:
-                    divergences.append(i)
-            return divergences
+def find_bullish_divergence(df):
+     divergences = []
+    for i in range(30, len(df)):
+        price_now = float(df['Close'].iloc[i])
+        price_prev = float(df['Close'].iloc[i - 5:i].min())
+        rsi_now = float(df['RSI'].iloc[i])
+        rsi_prev = float(df['RSI'].iloc[i - 5:i].min())
+        if price_now < price_prev and rsi_now > rsi_prev:
+            divergences.append(i)
+    return divergences
 
-        def find_bearish_divergence(df):
-            divergences = []
-            for i in range(30, len(df)):
-                price_now = df['Close'].iloc[i]
-                price_prev = df['Close'].iloc[i - 5:i].max()
-                rsi_now = df['RSI'].iloc[i]
-                rsi_prev = df['RSI'].iloc[i - 5:i].max()
-                if price_now > price_prev and rsi_now < rsi_prev:
-                    divergences.append(i)
-            return divergences
+
+def find_bearish_divergence(df):
+    divergences = []
+    for i in range(30, len(df)):
+        price_now = float(df['Close'].iloc[i])
+        price_prev = float(df['Close'].iloc[i - 5:i].max())
+        rsi_now = float(df['RSI'].iloc[i])
+        rsi_prev = float(df['RSI'].iloc[i - 5:i].max())
+        if price_now > price_prev and rsi_now < rsi_prev:
+            divergences.append(i)
+    return divergences
+
 
         bullish_points = find_bullish_divergence(data)
         bearish_points = find_bearish_divergence(data)
