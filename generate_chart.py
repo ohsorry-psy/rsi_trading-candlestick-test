@@ -32,24 +32,28 @@ def find_bearish_divergence(df):
 
 
 def find_hammer_and_inverted(df):
-    hammer = []
-    inverted = []
-    for i in range(1, len(df)):
-        o = df['Open'].iloc[i]
-        h = df['High'].iloc[i]
-        l = df['Low'].iloc[i]
-        c = df['Close'].iloc[i]
-        body = abs(c - o)
+    hammer_idx = []
+    inverted_idx = []
+
+    for i in range(len(df)):
+        o = df['Open'].iloc[i].item()
+        h = df['High'].iloc[i].item()
+        l = df['Low'].iloc[i].item()
+        c = df['Close'].iloc[i].item()
+
+        real_body = abs(c - o)
         upper_shadow = h - max(c, o)
         lower_shadow = min(c, o) - l
 
-        # 망치형 (Hammer): 아래 꼬리가 길고 양봉 또는 음봉
-        if lower_shadow > 2 * body and upper_shadow < body:
-            hammer.append(i)
-        # 역망치형 (Inverted Hammer): 위 꼬리가 길고 음봉
-        elif upper_shadow > 2 * body and lower_shadow < body and c < o:
-            inverted.append(i)
-    return hammer, inverted
+        # 망치형: 아래 꼬리 길고 몸통 위
+        if lower_shadow > 2 * real_body and upper_shadow < real_body:
+            hammer_idx.append(i)
+
+        # 역망치형: 위 꼬리 길고 몸통 아래
+        elif upper_shadow > 2 * real_body and lower_shadow < real_body:
+            inverted_idx.append(i)
+
+    return hammer_idx, inverted_idx
 
 
 def generate_chart(symbol: str, start_date: str, end_date: str) -> str:
